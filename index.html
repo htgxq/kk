@@ -1,0 +1,745 @@
+
+
+<html>
+
+<head>
+
+	<meta charset="utf-8">
+
+	<title>猫咪种植园</title>
+
+	<meta name="viewport"
+
+		  content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+
+	<meta name="format-detection" content="telephone=no">
+
+	<meta name="apple-mobile-web-app-capable" content="yes"/>
+
+	<meta name="mobile-web-app-capable" content="yes"/>
+
+	<meta name="full-screen" content="true"/>
+
+	<meta name="screen-orientation" content="portrait"/>
+
+	<meta name="x5-fullscreen" content="true"/>
+
+	<meta name="360-fullscreen" content="true"/>
+
+	<meta name="description" content="游光网络旗下的爱微游提供好玩的手机小游戏"/>
+
+	<meta name="keywords" content="游光 微游 手机 游戏"/>
+
+	<meta http-equiv="pragma" content="no-cache"/>
+
+	<meta http-equiv="cache-control" content="no-cache"/>
+
+	<meta http-equiv="cache" content="no-cache"/>
+
+	<meta http-equiv="expires" content="0"/>
+
+	<link href="favicon.ico" rel="bookmark" type="image/x-icon"/>
+
+	<link href="favicon.ico" rel="icon" type="image/x-icon"/>
+
+	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+
+	<link href="//cdn.11h5.com/static/css/common.css?v=201707311540" rel="stylesheet">
+
+	<link href="//play.11h5.com/game/css/layout.css?v=20180122001" rel="stylesheet">
+
+</head>
+
+<body>
+
+	<div id="transit" class="flex flex-v transit">
+
+		<img src="https://i.loli.net/2018/07/15/5b4b0a1b2c029.jpg">
+
+		<div class="flex-list flex">
+
+			<p>正在加载</p>
+
+			<div class="flex">
+
+				<div></div>
+
+				<div></div>
+
+				<div></div>
+
+			</div>
+
+		</div>
+
+		<span>进入本游戏意味着您已阅读并同意本公司<br>在“游戏中心”的用户条例</span>
+
+	</div>
+
+</body>
+
+
+
+
+
+<script type="text/javascript" src="https://mp.gtimg.cn/open/js/openApi.js?v=201708251113"></script>
+
+<script type="text/javascript" src="./js/jweixin-1.2.0.js?v=20180313001"></script>
+
+<script type="text/javascript" src="https://cdn.11h5.com/static/js/zepto.min.js?v=201702021800"></script>
+
+<script type="text/javascript" src="https://cdn.11h5.com/static/js/sdk_base.min.js?v=201702021800"></script>
+
+<script type="text/javascript" src="https://cdn.11h5.com/static/js/sdk_host.min.js?v=201702021800"></script>
+
+<script>
+
+	var sdk = window.AWY_SDK;
+
+	var chid = sdk.getURLVar("chid");
+
+	var query = sdk.getURLQuery(location.href);
+
+	var trial = sdk.getURLVar("trial");
+
+	var isShowFloatBox = false;
+
+	var isShowExitBanner = false;
+
+	sdk.enabledLogin = true;
+
+
+
+	sdk.gameInfo = {"url":"http:\/\/union.11h5.com\/login.html?gameid=263","name":"\u732b\u54aa\u79cd\u690d\u56ed","game_url":"","type":2,"dc_appid":"1","td_appid":"8E4D816A8BB7471E9F950AF24D3CEBEC","ext":[],"token_type":1,"orientation":0,"wx_option":1,"entry_url":"http:\/\/play.11h5.com\/game\/?gameid=263","content_url":"http:\/\/play.baodianyouxi.com\/game\/?gameId=1020&amp;pf=aiweiyou","use_vucoupon":0,"onoff":[],"inner_ext":[]};
+
+	if (sdk.gameInfo["ext"] && sdk.gameInfo["ext"]["wxappid"]) {
+
+		sdk.wxappId = sdk.gameInfo["ext"]["wxappid"];
+
+	}
+
+
+
+	
+
+	
+
+	
+
+	// 初始化宣传图
+
+	function initSplash() {
+
+				setTimeout(function () {
+
+			$("#splash,#transit").css("opacity",0);
+
+			setTimeout(function () {
+
+				$("#splash,#transit").remove();
+
+			}, 500);
+
+		}, 1500);
+
+	}
+
+
+
+	// 准备环境：CPS等
+
+	function prepareEnv(callback) {
+
+						if (!sdk.isAvuAPP()) {
+
+			isShowExitBanner = true;
+
+		}
+
+				isShowFloatBox = true;
+
+				callback();
+
+					}
+
+
+
+	// 加载游戏
+
+	function loadGame(gameURL, token, orientation) {
+
+		if (token) {
+
+			var args = {token: token, "_t": Date.now()};
+
+						if (sdk.isFocus) {
+
+				args.focus = 1;
+
+			}
+
+			if (trial) {
+
+				args.trial = 1;
+
+			}
+
+			if (sdk.belong) {
+
+                args.belong = sdk.belong;
+
+            }
+
+			var paramKeys = Object.keys(query);
+
+			for (var i in paramKeys) {
+
+				var key = paramKeys[i];
+
+				if (key.indexOf("cp_") == 0) {
+
+					args[key] = query[key];
+
+				}
+
+			}
+
+
+
+			
+
+			prepareEnv(function(extArgs) {
+
+				extArgs = extArgs || {};
+
+				gameURL = sdk.buildURL(gameURL, args);
+
+				if (Object.keys(extArgs).length) {
+
+					gameURL = sdk.buildURL(gameURL, extArgs);
+
+				}
+
+
+
+				
+
+				$.get('https://api.11h5.com/conf?token=' + sdk.token + '&cmd=isRealVerify', function (data) {
+
+                    if (data) {
+
+                        //sdk全局注册一个是否实名的信息
+
+                        sdk.isVerifyInfo = data;
+
+                        gameURL = sdk.buildURL(gameURL, {verify: data.isVerify, wallow: (data.adult ? 0 : 1)})
+
+                    }
+
+
+
+                    if (orientation) {
+
+                        // 横屏游戏
+
+                        $("body").append('<div id="gameFrameDiv" style="width: 100%; height: 100%; position: relative; top: 0px; left: 0px;"><iframe id="gameFrame" name="gameFrame" src="' + gameURL + '" frameborder="no" border="0px" marginwidth="0px" marginheight="0px" scrolling="auto" style="width: 100%; height: 100%;"></iframe></div>');
+
+                    } else {
+
+                        //非横屏游戏
+
+                        if (sdk.isAvuAPP()) {
+
+                            $("body").append('<div id="gameFrameDiv" style="width: ' + document.body.scrollWidth + 'px; height: ' + document.body.scrollHeight + 'px; position: relative; top: 0px; left: 0px;"><iframe id="gameFrame" name="gameFrame" src="' + gameURL + '" frameborder="no" border="0px" marginwidth="0px" marginheight="0px" scrolling="auto" style="width: ' + document.body.scrollWidth + 'px; height: ' + document.body.scrollHeight + 'px;"></iframe></div>');
+
+                        } else {
+
+                            $("body").append('<div id="gameFrameDiv" style="width: ' + $(window).width() + 'px; height: ' + $(window).height() + 'px; position: relative; top: 0px; left: 0px;"><iframe id="gameFrame" name="gameFrame" src="' + gameURL + '" frameborder="no" border="0px" marginwidth="0px" marginheight="0px" scrolling="auto" style="width: ' + $(window).width() + 'px; height: ' + $(window).height() + 'px;"></iframe></div>');
+
+                        }
+
+                    }
+
+
+
+                    if (isShowExitBanner) {
+
+                        sdk.enableExitBanner();
+
+                    }
+
+
+
+                    if (isShowFloatBox) {
+
+                        sdk.enableFloatBox();
+
+                    }
+
+                                    }, 'json');
+
+			});
+
+			sdk.checkDevice();
+
+		} else {
+
+			sdk.auth();
+
+		}
+
+	}
+
+
+
+	// 发送消息
+
+	function postGameMessage(data) {
+
+		if (window["gameFrame"].postMessage) {
+
+			window["gameFrame"].postMessage(data, "*");
+
+		} else if (window["gameFrame"].contentWindow.postMessage) {
+
+			window["gameFrame"].contentWindow.postMessage(data, "*");
+
+		}
+
+	}
+
+
+
+	// 分享完成回调
+
+	function onShare(data) {
+
+		sdk.hideShare();
+
+		postGameMessage({cmd: "onShare", args: data});
+
+		sendStat("分享完成", 1);
+
+	}
+
+
+
+	// 支付完成回调
+
+	function onPay() {
+
+		postGameMessage({cmd: "onPay"});
+
+	}
+
+
+
+	// 开始执行主逻辑
+
+	function start() {
+
+		var token = sdk.getURLVar("token");
+
+		if (token) {
+
+			var url = sdk.setURLVar(location.href, "token", "");
+
+			sdk.createCode(token, function (data) {
+
+				if (data["code"]) {
+
+					url = sdk.setURLVar(url, "code", data["code"]);
+
+				}
+
+				location.href = url;
+
+			});
+
+		} else {
+
+			sdk.initHost(function () {
+
+				sdk.checkNotify();
+
+				if (sdk.isAvuAPP()) {
+
+					if (sdk.isiOS()) {
+
+						sdk.initWebViewJavascriptBridge(function () {
+
+							if (window.WebViewJavascriptBridge) {
+
+								window.WebViewJavascriptBridge.callHandler("setTitle", document.title);
+
+							}
+
+						});
+
+					} else if (sdk.isAndroid()) {
+
+						window.android.setTitle(document.title);
+
+					}
+
+				}
+
+
+
+				// 初始化
+
+				sdk.wxInit(onShare, function () {
+
+					if (sdk.isWeixin() && !sdk.gameInfo["wx_option"]) {
+
+						// 隐藏菜单
+
+						wx.hideOptionMenu();
+
+					}
+
+				});
+
+
+
+				var orientation = sdk.gameInfo["orientation"];
+
+								var gameURL = decodeURIComponent(sdk.gameInfo["content_url"]);
+
+								// 根据所需token类型传递
+
+				if (sdk.gameInfo["token_type"]) {
+
+					// 需要的是userToken
+
+					sdk.getUserToken(sdk.token, function (data) {
+
+						loadGame(gameURL, data["userToken"], orientation);
+
+					});
+
+				} else {
+
+					// 需要的是token
+
+					loadGame(gameURL, sdk.token, orientation);
+
+				}
+
+
+
+				sdk.userPlay();
+
+
+
+				// 启用统计
+
+				if (sdk.gameInfo["td_appid"]) {
+
+					initStat(sdk.gameInfo["td_appid"], sdk.uid);
+
+				}
+
+				sdk.combineStat(0, '授权完成进入游戏', [{'游戏名称': sdk.gameInfo.name}]);
+
+
+
+							});
+
+		}
+
+		// 侦听消息
+
+		window.addEventListener("message", function (event) {
+
+			if (event && event.data) {
+
+				switch (event.data.cmd) {
+
+					case "config": {
+
+						break;
+
+					}
+
+					case "stat": {
+
+						sendStat(event.data.args["item"], 1);
+
+						break;
+
+					}
+
+					case "pay": {
+
+												sdk.pay(event.data.args, onPay);
+
+												break;
+
+					}
+
+					case "logout": {
+
+												sdk.logout();
+
+												break;
+
+					}
+
+					case "showShare": {
+
+						if (!sdk.isQQ() && !sdk.isWeixin() && sdk.isiOS() && sdk.isMobile() && !sdk.isAvuAPP()) {
+
+							onShare("onMenuShareAppMessage");
+
+						} else {
+
+							sdk.showShare(event.data.args);
+
+						}
+
+						break;
+
+					}
+
+					case "addShortcut": {
+
+												break;
+
+
+
+					}
+
+					case "getShareQRInfo": {
+
+						sdk.getShareQRInfo(function (data) {
+
+							postGameMessage({cmd: "getShareQRInfo", args: data});
+
+						}, event.data.args);
+
+						break;
+
+					}
+
+					case "getShareDomain": {
+
+						sdk.shareDomain(function (data) {
+
+							postGameMessage({cmd: "getShareDomain", args: data});
+
+						});
+
+						break;
+
+					}
+
+					// 语音部分
+
+					case "startRecord": {
+
+						sdk.startRecord(function (data) {
+
+							postGameMessage({cmd: "startRecord", args: data});
+
+						});
+
+						break;
+
+					}
+
+					case "stopRecord": {
+
+						sdk.stopRecord(function (data) {
+
+							postGameMessage({cmd: "stopRecord", args: data});
+
+						});
+
+						break;
+
+					}
+
+					case "uploadVoice": {
+
+						sdk.uploadVoice(event.data.args, function (data) {
+
+							postGameMessage({cmd: "uploadVoice", args: data});
+
+						});
+
+						break;
+
+					}
+
+					case "downloadVoice": {
+
+						sdk.downloadVoice(event.data.args, function (data) {
+
+							postGameMessage({cmd: "downloadVoice", args: data});
+
+						});
+
+						break;
+
+					}
+
+					case "playVoice": {
+
+						sdk.playVoice(event.data.args, function (data) {
+
+							postGameMessage({cmd: "playVoice", args: data});
+
+						});
+
+						break;
+
+					}
+
+					case "stopVoice": {
+
+						sdk.stopVoice(event.data.args);
+
+						break;
+
+					}
+
+					case "verify": {
+
+                        sdk.verify(function (data) {
+
+                            var info = {
+
+                                error: data.error,
+
+                                wallow: (data.adult ? 0 : 1)
+
+                            }
+
+                            postGameMessage({cmd: "verify", args:info});
+
+                        });
+
+                        break;
+
+                    }
+
+                    case "dialog": {
+
+                        sdk.dialog(event.data.args, function (data) {
+
+                            if (data == "ok") {
+
+                                postGameMessage({cmd: "dialog_ok"});
+
+                            }
+
+                            if (data == "cancel") {
+
+                                postGameMessage({cmd: "dialog_cancel"});
+
+                            }
+
+                        });
+
+                        break;
+
+                    }
+
+					default: {
+
+						if (event.data.cmd) {
+
+							sdk.execMessage(event.data);
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}, false);
+
+	}
+
+
+
+	// 初始化统计
+
+	function initStat(appid, uid) {
+
+				sdk.loadSingleScript("http://sdk.talkingdata.com/g/h5/v1/" + appid, function() {
+
+			sdk.loadSingleScript("http://sdk.talkingdata.com/websdk/js/sdk_release.js?v=1.02", function () {
+
+				window["TDGA"].Account({accountId: uid});
+
+			});
+
+		});
+
+			}
+
+
+
+	// 执行统计
+
+	function sendStat(item, count) {
+
+		if (window["TDGA"]) {
+
+			window["TDGA"].onItemUse({item: item, itemNumber: count});
+
+		}
+
+	}
+
+
+
+	// 桌面检测
+
+	function desktopCheck() {
+
+			}
+
+
+
+	desktopCheck();
+
+	initSplash();
+
+
+
+	if (sdk.enabledLogin) {
+
+        start();
+
+    } else {
+
+        $("#transit").remove();
+
+        $("body").css({
+
+            'background': '#fff url(https://cdn.11h5.com/static/image/404.jpg) center',
+
+            'background-repeat': 'no-repeat',
+
+            'background-size': 'contain'
+
+        })
+
+    }
+
+
+
+	if (!sdk.getItem("token")) {
+
+        sdk.combineStat(0, '进入游戏页需要授权', [{'游戏名称': sdk.gameInfo.name}]);
+
+    }
+
+        </script>
+
+</html>
